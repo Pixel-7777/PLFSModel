@@ -1,0 +1,25 @@
+# Local data (not redistributed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Generated model artifacts
+models/*
+!models/.gitkeep
+
+# Generated figures
+figures/data/*
+!figures/data/.gitkeep
+figures/training/*
+!figures/training/.gitkeep
+figures/presentation/*
+!figures/presentation/.gitkeep
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
