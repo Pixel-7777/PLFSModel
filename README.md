@@ -19,6 +19,12 @@ microdata portal using the instructions below.
 ├── notebooks/
 │   ├── 01_wage_merge.ipynb              # harmonize 2023 + 2024 + 2025 PLFS files
 │   └── 02_wage_model_end_to_end.ipynb   # train, evaluate, SHAP, robustness, figures
+├── app/
+│   ├── server.py                        # local HTTP server + JSON API
+│   ├── inference.py                     # loads the trained weights/preprocessing
+│   ├── labels.json                      # categorical labels and form defaults
+│   ├── static/                          # HTML, CSS and JavaScript interface
+│   └── data/                            # SQLite prediction log (created at runtime)
 ├── data/
 │   ├── raw/                             # place downloaded PLFS person files here
 │   └── processed/                       # created by notebook 01
@@ -27,14 +33,17 @@ microdata portal using the instructions below.
 │   ├── data/                            # created by notebook 01
 │   ├── training/                        # created by notebook 02
 │   └── presentation/                    # created by notebook 02
+├── run_ui.ps1                           # start the interface on Windows
+├── run_ui.bat                           # double-click launcher
 ├── README.md
 └── requirements.txt
 ```
 
-The `data/`, `models/` and `figures/` contents are generated locally and are
-ignored by Git. The two notebooks, `README.md`, `requirements.txt` and
+The `data/`, `models/` and generated `figures/` contents are ignored by Git.
+The notebooks, `app/` source, `README.md`, `requirements.txt`, launchers and
 `.gitignore` are the files meant to be tracked. The trained weights and
-preprocessing bundle are not committed; run notebook 02 to create them.
+preprocessing bundle are not committed; run notebook 02 to create them before
+starting the interface.
 
 ## 1. Set up the environment
 
@@ -173,6 +182,57 @@ models/wage/wage_reliability.csv
 models/wage/wage_drift_summary.json
 models/wage/model_card.md
 ```
+
+## 4. Use the web interface
+
+Notebook 02 must have finished first, because the interface loads:
+
+- `models/wage/wage_quantile_mlp.pt`
+- `models/wage/wage_preprocessing.pkl`
+- `models/wage/model_info.json`
+- `models/wage/metrics.json`
+
+Start the local server:
+
+```bash
+python app/server.py
+```
+
+Then open <http://127.0.0.1:8000>.
+
+On Windows you can also run `.\run_ui.ps1` or double-click `run_ui.bat`.
+
+The interface:
+
+- renders labelled dropdowns for all 27 categorical features from
+  `app/labels.json`;
+- loads the current trained model and preprocessing bundle at startup;
+- derives potential experience and average daily hours with the same formulas
+  as notebook 01;
+- returns the 5th, 50th and 95th percentile of monthly regular earnings in
+  2025 prices;
+- shows warnings for missing education, out-of-range inputs and high-wage
+  estimates;
+- stores every submission and result in `app/data/predictions.db`;
+- lists recent predictions and exports them as CSV.
+
+The server uses only the Python standard library for HTTP and SQLite. Use
+`python app/server.py --port 8080` if port 8000 is busy.
+
+### API
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/health` | Model version, device, weight hash and stored prediction count. |
+| `GET` | `/api/schema` | Form labels, defaults and current model facts. |
+| `POST` | `/api/predict` | Score one profile. Body: `{"inputs": {...}}`. |
+| `GET` | `/api/predictions?limit=20` | Recent predictions from SQLite. |
+| `GET` | `/api/predictions.csv` | Download all stored predictions. |
+
+### Resetting the local prediction log
+
+Stop the server, delete `app/data/predictions.db`, and restart the server. The
+database is recreated automatically. The database is ignored by Git.
 
 ## Runtime
 

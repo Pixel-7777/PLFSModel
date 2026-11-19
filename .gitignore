@@ -16,6 +16,12 @@ figures/training/*
 figures/presentation/*
 !figures/presentation/.gitkeep
 
+
+# Local prediction log
+app/data/*.db
+app/data/*.db-wal
+app/data/*.db-shm
+
 # Python / Jupyter
 __pycache__/
 *.py[cod]

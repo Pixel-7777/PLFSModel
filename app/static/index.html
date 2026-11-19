@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLFS Regular-Wage Model</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">PLFS</div>
+      <div>
+        <h1>Regular-wage model</h1>
+        <p>Quantile estimate of monthly regular earnings, 2023–2025</p>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span class="pill">Frozen weights</span>
+      <span class="pill pill-muted">2025 prices</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Worker profile</h2>
+          <p>Enter one regular salaried / wage worker. A common urban example is pre-filled; change any field.</p>
+        </div>
+        <button type="button" class="link-button" id="reset-button">Reset example</button>
+      </div>
+
+      <form id="wage-form" autocomplete="off">
+        <section class="form-section">
+          <div class="section-title">
+            <h3>Person and education</h3>
+            <p>Demographic and schooling characteristics.</p>
+          </div>
+          <div class="field-grid" id="person-fields"></div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-title">
+            <h3>Location and job</h3>
+            <p>Where the person works and the terms of the job.</p>
+          </div>
+          <div class="field-grid" id="job-fields"></div>
+        </section>
+
+        <details class="advanced">
+          <summary>Advanced: current weekly activity and subsidiary job</summary>
+          <div class="field-grid" id="advanced-fields"></div>
+        </details>
+
+        <p id="form-error" class="form-error" hidden></p>
+        <div class="form-actions">
+          <button type="submit" id="submit-button" class="primary-button">
+            Estimate monthly wage
+          </button>
+          <span class="form-note">The estimate is a model output, not a guarantee.</span>
+        </div>
+      </form>
+    </section>
+
+    <aside class="panel result-panel">
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">₹</div>
+        <h2>Your estimate will appear here</h2>
+        <p>Submit the profile to get the 5th percentile, median and 95th percentile of monthly regular earnings.</p>
+      </div>
+
+      <div id="result" class="result" hidden>
+        <div class="result-top">
+          <span class="eyebrow">Estimated monthly regular wage</span>
+          <span class="confidence-tag">5–95% interval</span>
+        </div>
+        <div class="median-value" id="median-value">₹0</div>
+        <div class="range-value" id="range-value">₹0 – ₹0</div>
+
+        <div class="interval-wrap" aria-hidden="true">
+          <div class="interval-track">
+            <div class="interval-band" id="interval-band"></div>
+            <div class="interval-marker" id="interval-marker"></div>
+          </div>
+          <div class="interval-scale">
+            <span>₹0</span>
+            <span id="interval-max">₹0</span>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <span class="stat-label">5th percentile</span>
+            <strong id="q05-value">₹0</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Median</span>
+            <strong id="q50-value">₹0</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">95th percentile</span>
+            <strong id="q95-value">₹0</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Interval width</span>
+            <strong id="width-value">₹0</strong>
+          </div>
+        </div>
+
+        <div id="warning-box" class="warning-box" hidden>
+          <h4>Things to know</h4>
+          <ul id="warnings"></ul>
+        </div>
+
+        <p class="disclaimer">
+          The model is trained on PLFS regular salaried / wage workers and predicts monthly
+          earnings in 2025 prices. It is less reliable for very high wages and for profiles
+          outside the training range.
+        </p>
+      </div>
+
+      <section class="recent">
+        <div class="recent-head">
+          <div>
+            <h2>Recent predictions</h2>
+            <p>Saved locally in SQLite.</p>
+          </div>
+          <a class="link-button" href="/api/predictions.csv">Download CSV</a>
+        </div>
+        <div class="table-wrap">
+          <table id="recent-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Profile</th>
+                <th>Median</th>
+                <th>5–95 range</th>
+              </tr>
+            </thead>
+            <tbody id="recent-body">
+              <tr><td colspan="4" class="empty-row">No predictions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="model-facts" aria-label="Model performance">
+        <div class="fact"><strong id="fact-coverage">93.1%</strong><span>test 5–95 coverage</span></div>
+        <div class="fact"><strong id="fact-mae">₹6,544</strong><span>test median MAE</span></div>
+        <div class="fact"><strong id="fact-n">31,987</strong><span>held-out test rows</span></div>
+      </section>
+      <p class="model-version" id="model-version">Loading model metadata…</p>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>PLFS Wage Model · 01 merge → 03 training → 07 evaluation</span>
+    <span>Finalized weights are loaded read-only.</span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
